@@ -12,4 +12,4 @@ three.js is released under an [MIT license](https://github.com/mrdoob/three.js/b
 
 dat.gui.module.js is released under an [Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0)
 
-
+These files do not form part of the Kasper project are included here purely for convenience.
