@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+   <body>
+      <script src="js/three.min.js"></script>
+      <!--<script src="js/mannequin.js"></script> -->
+      <script type = "module">
+         import { GUI } from './js/dat.gui.module.js';
+         import {Male, createScene, scene, renderer, camera} from "./js/mannequin.js";
+         // Put Mr Schmeichel in his place
+
+         createScene();
+         var man = new Male();
+         //man.body.turn += 45
+         man.body.bend -= 15
+         man.l_knee.bend += (30)
+         man.r_knee.bend += (30)
+         man.torso.bend += (45)
+         man.l_arm.straddle += 75
+         man.r_arm.straddle += 75
+         man.head.nod -= (30)
+
+         // position of KS's head
+         var Y = 27
+         const X = 0
+         var Z = 8
+         var Zoffset = 0 
+        
+
+         // shine a "laser" at his face
+
+         const spotLight = new THREE.SpotLight( 0x00ff00 );
+         spotLight.position.set( -100, 25, -30 );
+         spotLight.angle = 0.006
+         spotLight.castShadow = true;
+         scene.add( spotLight );
+         
+         spotLight.target.position.x = 0
+         spotLight.target.position.y = Y
+         spotLight.target.position.z = Z
+         scene.add( spotLight.target );
+         spotLight.target.updateMatrixWorld();
+
+
+         // put the camera somewhere sensible
+
+
+         console.log(camera)
+         console.log(spotLight)
+         var theta = 0.
+         camera.position.y = Y
+         camera.position.x = -105
+         camera.position.z = 105
+         camera.lookAt(scene.position);
+
+         // add a GUI
+
+         const params = {
+            jiggle: true,
+            horizontalAngle: 0,
+            verticalAngle: 0,
+	    verticalTarget: 1.8,
+	    horizontalOffset: 0.0,
+	    spotlightAngle: 6 
+         }
+
+         const gui = new GUI();
+         gui.add( params, 'jiggle' ).name('Jiggle')
+         gui.add( params, 'horizontalAngle', 0, 90).name('Horizontal angle (deg)').onChange(
+            function () { 
+               var ha = toRadians(params.horizontalAngle);
+               var va = toRadians(params.verticalAngle)
+
+               spotLight.position.x = -100*Math.cos(ha) * Math.cos(va)
+               spotLight.position.y =  100*               Math.sin(va) + 27
+               spotLight.position.z = -100*Math.sin(ha) * Math.cos(va)
+            }
+         )
+         gui.add( params, 'verticalAngle', 0, 90).name('Vertical angle (deg)').onChange(
+            function () { 
+               var ha = toRadians(params.horizontalAngle);
+               var va = toRadians(params.verticalAngle)         
+               spotLight.position.x = -100*Math.cos(ha) * Math.cos(va)
+               spotLight.position.y =  100*               Math.sin(va)
+               spotLight.position.z = -100*Math.sin(ha) * Math.cos(va)
+            }
+         )
+	 gui.add( params, 'verticalTarget', 0, 2).name('Vertical target (m)').onChange(
+	    function () {
+		Y = params.verticalTarget * 15.3;
+		Z = Y * 9 / 27 + params.horizontalOffset;
+	    }
+	 )
+	 gui.add( params, 'horizontalOffset', -3.0, 3.0).name('Horizontal offset (m)').onChange(
+	    function () {
+		Z = Y / 3 + params.horizontalOffset;	
+	    }
+	 )
+
+	 gui.add( params, 'spotlightAngle', 0, 10).name('Spotlight width').onChange(
+	    function (val) {
+		spotLight.angle = params.spotlightAngle / 1000.;
+	    }
+	 )
+         function toRadians(deg) {
+            return deg * Math.PI / 180.
+         }
+
+         function render() {
+            if (params.jiggle) { 
+               spotLight.target.position.x = X + 3*(Math.random() - 0.5)
+               spotLight.target.position.y = Y + 9*(Math.random() - 0.5)
+               spotLight.target.position.z = Z + 3*(Math.random() - 0.5)
+
+               //console.log(spotLight.position)
+               spotLight.target.updateMatrixWorld();
+            } else {
+               spotLight.target.position.x = X;
+               spotLight.target.position.y = Y;
+               spotLight.target.position.z = Z;
+
+               //console.log(spotLight.position)
+               spotLight.target.updateMatrixWorld();
+            }
+            
+
+
+            renderer.render(scene, camera);
+         }
+
+         function animate() {
+            if (theta < Math.PI / 2)
+            {
+               requestAnimationFrame(animate);
+               render();
+            }
+         }
+
+         animate();
+      </script>
+   </body>
+</html>
